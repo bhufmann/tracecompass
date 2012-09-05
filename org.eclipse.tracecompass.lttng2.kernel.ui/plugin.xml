@@ -11,6 +11,17 @@
       </perspective>
    </extension>
    <extension
+         point="org.eclipse.ui.views">
+       <view
+             category="org.eclipse.linuxtools.lttng2.ui.views.category"
+             class="org.eclipse.tracecompass.internal.lttng2.kernel.ui.views.latency.LatencyView"
+             icon="icons/eview16/graph.gif"
+             id="org.eclipse.tracecompass.lttng2.kernel.ui.views.latency.LatencyView"
+             name="%latency.view.name"
+             restorable="true">
+      </view>            
+   </extension>
+   <extension
          point="org.eclipse.ui.navigator.navigatorContent">
       <commonWizard
             associatedExtensionId="org.eclipse.linuxtools.tmf.ui.navigator.content"
