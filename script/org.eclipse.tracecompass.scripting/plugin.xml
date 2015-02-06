@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="org.eclipse.ease.modules">
+      <module
+            class="org.eclipse.tracecompass.scripting.trace.TraceManager"
+            id="org.eclipse.tracecompass.tracemanager"
+            name="Trace Manager"
+            visible="true">
+      </module>
+      <category
+            id="org.eclipse.tracecompass.trace"
+            name="Trace">
+      </category>
+   </extension>
+
+</plugin>
