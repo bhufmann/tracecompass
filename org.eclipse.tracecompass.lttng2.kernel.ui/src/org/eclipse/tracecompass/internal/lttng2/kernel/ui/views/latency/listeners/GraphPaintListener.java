@@ -16,10 +16,8 @@ package org.eclipse.tracecompass.internal.lttng2.kernel.ui.views.latency.listene
 import java.text.DecimalFormat;
 
 import org.eclipse.tracecompass.internal.lttng2.kernel.ui.views.latency.AbstractViewer;
-import org.eclipse.tracecompass.internal.lttng2.kernel.ui.views.latency.GraphViewer;
 import org.eclipse.tracecompass.internal.lttng2.kernel.ui.views.latency.model.Config;
 import org.eclipse.tracecompass.internal.lttng2.kernel.ui.views.latency.model.GraphScaledData;
-import org.eclipse.tracecompass.internal.lttng2.kernel.ui.views.latency.model.IGraphDataModel;
 import org.eclipse.tracecompass.tmf.core.timestamp.ITmfTimestamp;
 import org.eclipse.tracecompass.tmf.core.timestamp.TmfTimestamp;
 import org.eclipse.tracecompass.tmf.core.timestamp.TmfTimestampFormat;
@@ -68,12 +66,12 @@ public class GraphPaintListener extends AbstractPaintListener {
     public void scale() {
 
          // width of the plot area
-         double width = getWidth();
-         // height of the plot area
-         double height = getHeight();
+//         double width = getWidth();
+//         // height of the plot area
+//         double height = getHeight();
 
-         IGraphDataModel model = ((GraphViewer)fViewer).getModel();
-         fScaledData = model.scaleTo((int)width, (int)height, fBarWith);
+//         IGraphDataModel model = ((GraphViewer)fViewer).getModel();
+//         fScaledData = model.scaleTo((int)width, (int)height, fBarWith);
 
          fXMin = fScaledData.getHorFirstBucketTime() > 0 ? fScaledData.getHorFirstBucketTime() : 0;
          fXMax = 0;

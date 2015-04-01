@@ -176,10 +176,10 @@ public class LatencyView extends TmfView implements IGraphModelListener {
 
         // Create the graph views
         fGraphViewer = new GraphViewer(layoutFullView, SWT.DOUBLE_BUFFERED);
-        fGraphViewer.setDrawLabelEachNTicks(2);
-        fGraphViewer.setGraphTitle(Messages.LatencyView_Graphs_Graph_Title);
-        fGraphViewer.setXAxisLabel(Messages.LatencyView_Graphs_Graph_XAxisLabel, 40);
-        fGraphViewer.setYAxisLabel(Messages.LatencyView_Graphs_Graph_YAxisLabel);
+//        fGraphViewer.setDrawLabelEachNTicks(2);
+//        fGraphViewer.setGraphTitle(Messages.LatencyView_Graphs_Graph_Title);
+//        fGraphViewer.setXAxisLabel(Messages.LatencyView_Graphs_Graph_XAxisLabel, 40);
+//        fGraphViewer.setYAxisLabel(Messages.LatencyView_Graphs_Graph_YAxisLabel);
 
         fHistogramViewer = new HistogramViewer(layoutFullView, SWT.DOUBLE_BUFFERED);
         fHistogramViewer.setDrawLabelEachNTicks(2);
@@ -447,7 +447,7 @@ public class LatencyView extends TmfView implements IGraphModelListener {
             @Override
             public void run() {
                 fHistogramViewer.increaseBarWidth();
-                fGraphViewer.increaseBarWidth();
+//                fGraphViewer.increaseBarWidth();
             }
         };
         String tooltipText = Messages.LatencyView_Action_IncreaseBarWidth_Tooltip;
@@ -460,7 +460,7 @@ public class LatencyView extends TmfView implements IGraphModelListener {
             @Override
             public void run() {
                 fHistogramViewer.decreaseBarWidth();
-                fGraphViewer.decreaseBarWidth();
+//                fGraphViewer.decreaseBarWidth();
             }
         };
         tooltipText = Messages.LatencyView_Action_DecreaseBarWidth_Tooltip;
