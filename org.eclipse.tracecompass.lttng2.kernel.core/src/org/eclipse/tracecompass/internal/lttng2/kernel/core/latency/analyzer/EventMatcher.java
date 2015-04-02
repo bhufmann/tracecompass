@@ -18,10 +18,12 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-import java.util.Stack;
 import java.util.Vector;
 
+import org.eclipse.tracecompass.analysis.os.linux.core.kernelanalysis.KernelTidAspect;
+import org.eclipse.tracecompass.analysis.os.linux.core.trace.IKernelAnalysisEventLayout;
 import org.eclipse.tracecompass.internal.lttng2.kernel.core.trace.layout.LttngEventLayout;
+import org.eclipse.tracecompass.lttng2.kernel.core.trace.LttngKernelTrace;
 import org.eclipse.tracecompass.tmf.core.event.ITmfEvent;
 import org.eclipse.tracecompass.tmf.ctf.core.event.CtfTmfEvent;
 
@@ -50,6 +52,7 @@ public class EventMatcher {
      */
     private final StackWrapper fStack;
 
+    private final Map<Integer, CtfTmfEvent> fSysCalls = new HashMap<>();
     /**
      * Match table, associates a request class to a response class.
      */
@@ -68,7 +71,7 @@ public class EventMatcher {
      */
     private int fMatchedEvents;
 
-    private boolean fFirstEvent = true;
+    private IKernelAnalysisEventLayout fLayout;
 
 	/**
 	 * Event types identification Strings.
@@ -283,40 +286,34 @@ public class EventMatcher {
     public CtfTmfEvent process(ITmfEvent ev) {
         CtfTmfEvent event = (CtfTmfEvent) ev;
         fProcessedEvents++;
-
-        if (fFirstEvent) {
-
-            fFirstEvent = false;
+        if (fLayout == null) {
+            fLayout = ((LttngKernelTrace)ev.getTrace()).getKernelEventLayout();
         }
+        final String eventName = event.getType().getName();
 
+        if (eventName.startsWith(fLayout.eventSyscallEntryPrefix()) ||
+                eventName.startsWith(fLayout.eventCompatSyscallEntryPrefix())) {
+            /* This is a system call entry event */
 
-        String markerName = event.getType().getName();
-        String startEventType = fMatch.get(markerName);
-        if (startEventType != null) {
-//        if (fMatch.containsKey(markerName)) {
-//            String startEventType = fMatch.get(markerName);
-            Stack<CtfTmfEvent> events = fStack.getStackOf(startEventType);
-
-            if (events != null) {
-                for (int i = events.size() - 1; i >= 0; i--) {
-                    CtfTmfEvent request = events.get(i);
-
-                    if (request.getCPU() == event.getCPU() && event.getTimestamp().getValue() > request.getTimestamp().getValue()) {
-                        fStack.removeEvent(startEventType, request);
-                        fMatchedEvents++;
-                        return request;
-                    }
-                }
+            Integer tid = KernelTidAspect.INSTANCE.resolve(event);
+            if (tid != null) {
+                fSysCalls.put(tid, event);
             }
-            return null;
-        } //else {
-        // Add only if there can later be a match for this request
-//        if (fMatch.containsValue(markerName)) {
-        if (fInverseMatch.containsKey(markerName)) {
-            fStack.put(event);
+        } else if (eventName.startsWith(fLayout.eventSyscallExitPrefix())) {
+            /* This is a system call exit event */
+
+            Integer tid = KernelTidAspect.INSTANCE.resolve(event);
+            if (tid == null) {
+                return null;
+            }
+
+            CtfTmfEvent startEvent = fSysCalls.get(tid);
+            if (startEvent != null) {
+                fSysCalls.remove(tid);
+                return startEvent;
+            }
         }
-            return null;
-        //}
+        return null;
     }
 
     /**
@@ -324,11 +321,12 @@ public class EventMatcher {
      */
     public void clearStack() {
         fStack.clear();
+        fSysCalls.clear();
+        fLayout = null;
 
         // Reset the processed and matched events counter
         fProcessedEvents = 0;
         fMatchedEvents = 0;
-        fFirstEvent = true;
     }
 
     /**
@@ -339,7 +337,8 @@ public class EventMatcher {
         fInverseMatch.clear();
 
         fStack.clear();
-
+        fSysCalls.clear();
+        fLayout = null;
         // Reset the processed and matched events counter
         fProcessedEvents = 0;
         fMatchedEvents = 0;
