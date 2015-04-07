@@ -274,6 +274,8 @@ public class LatencyGraphModel implements IGraphDataModel {
                 // Scale vertically
                 int nbVerBars = height / barWidth;
                 int bucketsPerVerBar = fVerDistributionData.getLastBucket() / nbVerBars + 1;
+                int min = Integer.MAX_VALUE;
+                int max = Integer.MIN_VALUE;
 
                 int verData[][] = new int[nbBars][nbVerBars];
                 for (int x = 0; x < nbBars; x++) {
@@ -286,6 +288,12 @@ public class LatencyGraphModel implements IGraphDataModel {
                             count += horData[x][j];
                         }
                         verData[x][i] = count;
+                        if (count < min) {
+                            min = count;
+                        }
+                        if (count > max) {
+                            max = count;
+                        }
                     }
                 }
 
@@ -301,6 +309,8 @@ public class LatencyGraphModel implements IGraphDataModel {
                 scaledData.setHorLastBucket(fHorDistributionData.getLastBucket() / bucketsPerBar);
                 scaledData.setVerLastBucket(fVerDistributionData.getLastBucket() / bucketsPerVerBar);
                 scaledData.setCurrentEventTime(fCurrentEventTime);
+                scaledData.setMin(min);
+                scaledData.setMax(max);
             }
         } finally {
             fLock.unlock();

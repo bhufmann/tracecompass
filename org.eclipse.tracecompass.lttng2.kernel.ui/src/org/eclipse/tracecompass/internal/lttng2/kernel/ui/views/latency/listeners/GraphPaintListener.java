@@ -15,7 +15,13 @@ package org.eclipse.tracecompass.internal.lttng2.kernel.ui.views.latency.listene
 
 import java.text.DecimalFormat;
 
+import org.eclipse.jface.resource.JFaceResources;
+import org.eclipse.jface.resource.LocalResourceManager;
+import org.eclipse.swt.graphics.Color;
+import org.eclipse.swt.graphics.RGB;
 import org.eclipse.tracecompass.internal.lttng2.kernel.ui.views.latency.AbstractViewer;
+import org.eclipse.tracecompass.internal.lttng2.kernel.ui.views.latency.ColorMap;
+import org.eclipse.tracecompass.internal.lttng2.kernel.ui.views.latency.ColorMap.PredefinedColorMap;
 import org.eclipse.tracecompass.internal.lttng2.kernel.ui.views.latency.GraphViewer;
 import org.eclipse.tracecompass.internal.lttng2.kernel.ui.views.latency.model.Config;
 import org.eclipse.tracecompass.internal.lttng2.kernel.ui.views.latency.model.GraphScaledData;
@@ -42,6 +48,11 @@ public class GraphPaintListener extends AbstractPaintListener {
      * Scaled data from data model
      */
     protected GraphScaledData fScaledData;
+
+    protected ColorMap colorMap = new ColorMap(PredefinedColorMap.JET, true, true);
+
+    private LocalResourceManager fResourceManager = new LocalResourceManager(JFaceResources.getResources());
+//    protected Color fColor = null;
 
     // ------------------------------------------------------------------------
     // Constructors
@@ -97,7 +108,7 @@ public class GraphPaintListener extends AbstractPaintListener {
         if (fXMin >= 0 && fXMax >= 0 && fYMin >= 0 && fYMax >= 0 && fScaledData != null) {
 
             fAxisImage.setForeground(fDataColor);
-            fAxisImage.setBackground(fDataColor);
+//            fAxisImage.setBackground(fDataColor);
 
             double height = getHeight();
 
@@ -122,6 +133,11 @@ public class GraphPaintListener extends AbstractPaintListener {
                         if(x + xBarWidth > fClientArea.width - fPadding - fPaddingRight) {
                             xBarWidth =  (int)(fClientArea.width - fPadding - fPaddingRight - x);
                         }
+                        RGB rgb = colorMap.drawImage(xLen, yLen, fScaledData.getMax(), fScaledData.getMin(), fScaledData.getEventCount(i, j));
+
+                        Color color = fResourceManager.createColor(rgb);
+
+                        fAxisImage.setBackground(color);
                         fAxisImage.fillRectangle((int) x, (int) y - yBarWidth,  xBarWidth, yBarWidth);
                     }
                 }
@@ -242,5 +258,11 @@ public class GraphPaintListener extends AbstractPaintListener {
             }
         }
         return Config.INVALID_EVENT_TIME;
+    }
+
+    @Override
+    public void dispose() {
+        super.dispose();
+        fResourceManager.dispose();
     }
 }

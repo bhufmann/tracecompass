@@ -33,6 +33,8 @@ public class GraphScaledData {
     private BaseDistributionData fHorDistributionData;
     private BaseDistributionData fVerDistributionData;
     private long fCurrentEventTime;
+    private int fMin;
+    private int fMax;
 
     // ------------------------------------------------------------------------
     // Constructor
@@ -180,6 +182,13 @@ public class GraphScaledData {
         return fVerDistributionData.isIndexValid(index);
     }
 
+    public int getMin() {
+        return fMin;
+    }
+
+    public int getMax() {
+        return fMax;
+    }
     // ------------------------------------------------------------------------
     // Operations
     // ------------------------------------------------------------------------
@@ -242,5 +251,13 @@ public class GraphScaledData {
 
     public void setCurrentEventTime(long currentEventTime) {
         fCurrentEventTime = currentEventTime;
+    }
+
+    public void setMin(int min) {
+        fMin = min;
+    }
+
+    public void setMax(int max) {
+        fMax = max;
     }
 }
