@@ -82,6 +82,9 @@ public final class Messages extends NLS {
     public static String TraceControl_DownloadTask;
     public static String TraceControl_ImportFailure;
 
+    public static String TraceControl_SaveJob;
+    public static String TraceControl_SaveFailure;
+
     public static String TraceControl_ChangeSessionStateJob;
     public static String TraceControl_ChangeSessionStateFailure;
 
