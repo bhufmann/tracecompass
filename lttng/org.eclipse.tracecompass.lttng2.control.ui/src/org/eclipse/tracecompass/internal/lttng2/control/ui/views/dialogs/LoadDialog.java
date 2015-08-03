@@ -19,31 +19,27 @@ import org.eclipse.core.filesystem.EFS;
 import org.eclipse.core.filesystem.IFileStore;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.dialogs.TitleAreaDialog;
+import org.eclipse.jface.preference.PreferenceDialog;
 import org.eclipse.jface.viewers.CheckStateChangedEvent;
 import org.eclipse.jface.viewers.CheckboxTreeViewer;
 import org.eclipse.jface.viewers.ICheckStateListener;
-import org.eclipse.jface.viewers.ITreeContentProvider;
-import org.eclipse.jface.viewers.LabelProvider;
-import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.remote.core.IRemoteConnection;
 import org.eclipse.remote.ui.widgets.RemoteResourceBrowserWidget;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Shell;
-import org.eclipse.swt.widgets.Tree;
-import org.eclipse.tracecompass.internal.lttng2.control.core.LttngProfileManager;
 import org.eclipse.tracecompass.internal.lttng2.control.ui.Activator;
 import org.eclipse.tracecompass.internal.lttng2.control.ui.views.messages.Messages;
+import org.eclipse.tracecompass.internal.lttng2.control.ui.views.preferences.ControlRemoteProfilesPreferencePage;
+import org.eclipse.tracecompass.internal.lttng2.control.ui.views.preferences.LTTngProfileViewer;
 import org.eclipse.tracecompass.internal.lttng2.control.ui.views.service.LTTngControlServiceConstants;
-import org.eclipse.ui.ISharedImages;
-import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.dialogs.PreferencesUtil;
 
 /**
  * Dialog box for collecting parameter for loading a session.
@@ -189,23 +185,12 @@ public class LoadDialog extends TitleAreaDialog implements ILoadDialog {
             fLocalComposite.setLayout(new GridLayout(2, false));
             fLocalComposite.setLayoutData(new GridData(GridData.FILL_BOTH));
 
-            Composite viewerComposite = new Composite(fLocalComposite, SWT.NONE);
-            viewerComposite.setLayout(new GridLayout(1, false));
-            viewerComposite.setLayoutData(new GridData(GridData.FILL_BOTH));
-
-            fFolderViewer = new CheckboxTreeViewer(viewerComposite);
-            fFolderViewer.setContentProvider(new ProfileContentProvider());
-            fFolderViewer.setLabelProvider(new ProfileLabelProvider());
-            fFolderViewer.setInput(LttngProfileManager.getProfiles());
-
-            GridData data = new GridData(GridData.FILL_BOTH);
-            Tree tree = fFolderViewer.getTree();
-            tree.setLayoutData(data);
-
+            fFolderViewer = LTTngProfileViewer.createLTTngProfileViewer(fLocalComposite, SWT.NONE);
+            fFolderViewer.getTree().setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
             fFolderViewer.addCheckStateListener(new ICheckStateListener() {
                 @Override
                 public void checkStateChanged(CheckStateChangedEvent event) {
-                    enableButtons();
+                    getButton(IDialogConstants.OK_ID).setEnabled(fFolderViewer.getCheckedElements().length > 0);
                 }
             });
         }
@@ -251,18 +236,21 @@ public class LoadDialog extends TitleAreaDialog implements ILoadDialog {
         fForceButton.setSelection(true);
     }
 
-    private void enableButtons() {
-        Object[] checked = fFolderViewer.getCheckedElements();
-        boolean enabled = (checked != null) && (checked.length > 0);
-        Button okButton = getButton(IDialogConstants.OK_ID);
-        if (okButton != null) {
-            okButton.setEnabled(enabled);
-        }
-    }
-
     @Override
-    protected void createButtonsForButtonBar(Composite parent) {
+    protected void createButtonsForButtonBar(final Composite parent) {
         createButton(parent, IDialogConstants.CANCEL_ID, IDialogConstants.CANCEL_LABEL, true);
+        Button manageButton = createButton(parent, IDialogConstants.CLIENT_ID + 1, Messages.TraceControl_ManageButtonText, true);
+        manageButton.addSelectionListener(new SelectionAdapter() {
+            @Override
+            public void widgetSelected(SelectionEvent e) {
+                PreferenceDialog dialog =
+                        PreferencesUtil.createPreferenceDialogOn(parent.getShell(),
+                        ControlRemoteProfilesPreferencePage.ID,
+                        new String[] { ControlRemoteProfilesPreferencePage.ID },
+                        null);
+                dialog.open();
+            }
+        });
         Button button = createButton(parent, IDialogConstants.OK_ID, IDialogConstants.OK_LABEL, true);
         button.setEnabled(false);
     }
@@ -291,61 +279,4 @@ public class LoadDialog extends TitleAreaDialog implements ILoadDialog {
         }
     }
 
-    /**
-     * Helper class for the contents of a folder in a tracing project
-     *
-     * @author Bernd Hufmann
-     */
-    public static class ProfileContentProvider implements ITreeContentProvider {
-        @Override
-        public Object[] getChildren(Object o) {
-
-            if (o instanceof File[]) {
-                return (File[]) o;
-            }
-            File store = (File) o;
-            if (store.isDirectory()) {
-                return store.listFiles();
-            }
-            return new Object[0];
-        }
-
-        @Override
-        public Object getParent(Object element) {
-            return ((File) element).getParent();
-        }
-
-        @Override
-        public void dispose() {
-        }
-
-        @Override
-        public void inputChanged(Viewer viewer, Object oldInput, Object newInput) {
-        }
-
-        @Override
-        public Object[] getElements(Object inputElement) {
-            return getChildren(inputElement);
-        }
-
-        @Override
-        public boolean hasChildren(Object element) {
-            return ((File) element).isDirectory();
-        }
-    }
-
-    static class ProfileLabelProvider extends LabelProvider {
-        @Override
-        public String getText(Object element) {
-            return ((File) element).getName();
-        }
-
-        @Override
-        public Image getImage(Object element) {
-            if (((File) element).isDirectory()) {
-                return PlatformUI.getWorkbench().getSharedImages().getImage(ISharedImages.IMG_OBJ_FOLDER);
-            }
-            return PlatformUI.getWorkbench().getSharedImages().getImage(ISharedImages.IMG_OBJ_FILE);
-        }
-    }
 }
