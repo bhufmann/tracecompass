@@ -55,6 +55,12 @@ public abstract class AbstractTmfMipmapStateProvider extends AbstractTmfStatePro
     public static final int AVG = 1 << 3;
 
     /**
+     * Feature bit for the average mipmap feature (value is 1&lt;&lt;4).
+     */
+    public static final int ARITHM_AVG = 1 << 4;
+
+
+    /**
      * The string for maximum mipmap feature sub-attribute.
      * This attribute value is the mipmap number of levels.
      * It has sub-attributes for every level ("1", "2", etc.)
@@ -74,6 +80,14 @@ public abstract class AbstractTmfMipmapStateProvider extends AbstractTmfStatePro
      * It has sub-attributes for every level ("1", "2", etc.)
      */
     public static final String AVG_STRING = "avg"; //$NON-NLS-1$
+
+    /**
+     * The string for average mipmap feature sub-attribute.
+     * This attribute value is the mipmap number of levels.
+     * It has sub-attributes for every level ("1", "2", etc.)
+     */
+    public static final String ARITHM_AVG_STRING = "arith-avg"; //$NON-NLS-1$
+
 
     /**
      * Map of mipmap features per attribute. The map's key is the base attribute quark.
@@ -189,6 +203,12 @@ public abstract class AbstractTmfMipmapStateProvider extends AbstractTmfStatePro
                     int featureQuark = ss.getQuarkRelativeAndAdd(baseQuark, AVG_STRING);
                     ss.modifyAttribute(ts, TmfStateValue.newValueInt(0), featureQuark);
                     AvgMipmapFeature mf = new AvgMipmapFeature(baseQuark, featureQuark, resolution, ss);
+                    features.add(mf);
+                }
+                if ((mipmapFeatureBits & ARITHM_AVG) != 0) {
+                    int featureQuark = ss.getQuarkRelativeAndAdd(baseQuark, ARITHM_AVG_STRING);
+                    ss.modifyAttribute(ts, TmfStateValue.newValueInt(0), featureQuark);
+                    ArithmAvgMipmapFeature mf = new ArithmAvgMipmapFeature(baseQuark, featureQuark, resolution, ss);
                     features.add(mf);
                 }
             } catch (TimeRangeException e) {

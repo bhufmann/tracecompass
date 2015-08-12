@@ -49,6 +49,7 @@ public class SystemCall implements ISegment {
         private final long fStartTime;
         private final String fName;
         private final Map<String, String> fArgs;
+        private final int fCpu;
 
         /**
          * @param startTime
@@ -61,10 +62,12 @@ public class SystemCall implements ISegment {
         public InitialInfo(
                 long startTime,
                 String name,
-                Map<String, String> arguments) {
+                Map<String, String> arguments,
+                int cpu) {
             fStartTime = startTime;
             fName = name;
             fArgs = NonNullUtils.checkNotNull(ImmutableMap.copyOf(arguments));
+            fCpu = cpu;
         }
     }
 
@@ -133,7 +136,6 @@ public class SystemCall implements ISegment {
         return fRet;
     }
 
-
     @Override
     public int compareTo(@Nullable ISegment o) {
         if (o == null) {
@@ -142,12 +144,17 @@ public class SystemCall implements ISegment {
         return COMPARATOR.compare(this, o);
     }
 
+    public int getCpu() {
+        return fInfo.fCpu;
+    }
+
     @Override
     public String toString() {
         return "Start Time = " + getStart() + //$NON-NLS-1$
                 "; End Time = " + getEnd() + //$NON-NLS-1$
                 "; Duration = " + getLength() + //$NON-NLS-1$
                 "; Name = " + getName() + //$NON-NLS-1$
+                "; CPU = " + getCpu() + //$NON-NLS-1$
                 "; Args = " + getArguments().toString() + //$NON-NLS-1$
                 "; Return = " + getReturnValue(); //$NON-NLS-1$
     }

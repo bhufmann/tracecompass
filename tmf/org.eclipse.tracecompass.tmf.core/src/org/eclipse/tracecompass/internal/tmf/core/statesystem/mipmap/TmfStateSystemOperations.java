@@ -196,6 +196,51 @@ public final class TmfStateSystemOperations {
         return avg;
     }
 
+
+    /**
+     * Return the weighted average value of an attribute over a time range
+     *
+     * @param ss
+     *            The state system to query
+     * @param t1
+     *            The start time of the range
+     * @param t2
+     *            The end time of the range
+     * @param quark
+     *            The quark of the attribute
+     * @return The weighted average value of the attribute in this range
+     * @throws TimeRangeException
+     *             If an invalid time range is specified
+     * @throws AttributeNotFoundException
+     *             If the specified quark doesn't match an attribute
+     * @throws StateValueTypeException
+     *             If the state value type of the attribute does not support the
+     *             "Average" operation
+     */
+    public static double queryRangeArithmAverage(ITmfStateSystem ss, long t1, long t2, int quark)
+            throws AttributeNotFoundException, TimeRangeException, StateValueTypeException {
+        double avg = 0.0;
+        List<ITmfStateInterval> intervals = queryAttributeRange(ss, t1, t2, quark, AbstractTmfMipmapStateProvider.ARITHM_AVG_STRING);
+        if (intervals.size() == 0) {
+            return 0;
+        } else if (t1 == t2) {
+            ITmfStateValue value = intervals.get(0).getStateValue();
+            if (value.getType() == Type.DOUBLE) {
+                return value.unboxDouble();
+            }
+            return value.unboxLong();
+        }
+        for (ITmfStateInterval si : intervals) {
+            ITmfStateValue value = si.getStateValue();
+            if (value.getType() == Type.DOUBLE) {
+                avg += si.getStateValue().unboxDouble();
+            } else {
+                avg += si.getStateValue().unboxLong();
+            }
+        }
+        return avg / intervals.size();
+    }
+
     private static List<ITmfStateInterval> queryAttributeRange(ITmfStateSystem ss,
             long t1, long t2, int baseQuark, String featureString)
                     throws AttributeNotFoundException, TimeRangeException, StateValueTypeException {

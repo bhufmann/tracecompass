@@ -28,6 +28,7 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.tracecompass.analysis.os.linux.core.latency.statistics.LatencyStatisticsAnalysisModule;
 import org.eclipse.tracecompass.statesystem.core.ITmfStateSystem;
 import org.eclipse.tracecompass.statesystem.core.exceptions.AttributeNotFoundException;
 import org.eclipse.tracecompass.statesystem.core.exceptions.StateSystemDisposedException;
@@ -221,6 +222,11 @@ public class TmfStateSystemViewer extends AbstractTmfTreeViewer {
                     traceEntry.addChild(new StateSystemEntry(ss));
                 }
             }
+        }
+        // TODO remove hack to display that particular state system
+        ITmfStateSystem ss = LatencyStatisticsAnalysisModule.getStateSystem();
+        if (ss != null) {
+            traceEntry.addChild(new StateSystemEntry(ss));
         }
         return traceEntry;
     }

@@ -37,6 +37,7 @@ import org.eclipse.tracecompass.tmf.core.exceptions.TmfAnalysisException;
 import org.eclipse.tracecompass.tmf.core.request.ITmfEventRequest;
 import org.eclipse.tracecompass.tmf.core.request.TmfEventRequest;
 import org.eclipse.tracecompass.tmf.core.trace.TmfTraceManager;
+import org.eclipse.tracecompass.tmf.ctf.core.event.CtfTmfEvent;
 
 import com.google.common.base.Function;
 import com.google.common.collect.FluentIterable;
@@ -168,6 +169,8 @@ public class LatencyAnalysis extends TmfAbstractAnalysisModule {
                     return;
                 }
 
+                int cpu = ((CtfTmfEvent) event).getCPU();
+
                 /* Record the event's data into the intial system call info */
                 // String syscallName = fLayout.getSyscallNameFromEvent(event);
                 long startTime = event.getTimestamp().getValue();
@@ -179,7 +182,7 @@ public class LatencyAnalysis extends TmfAbstractAnalysisModule {
                         return checkNotNull(event.getContent().getField(input).getValue().toString());
                     }
                 });
-                SystemCall.InitialInfo newSysCall = new SystemCall.InitialInfo(startTime, NonNullUtils.checkNotNull(syscallName), NonNullUtils.checkNotNull(args));
+                SystemCall.InitialInfo newSysCall = new SystemCall.InitialInfo(startTime, NonNullUtils.checkNotNull(syscallName), NonNullUtils.checkNotNull(args), cpu);
                 fOngoingSystemCalls.put(tid, newSysCall);
 
             } else if (eventName.startsWith(fLayout.eventSyscallExitPrefix())) {
