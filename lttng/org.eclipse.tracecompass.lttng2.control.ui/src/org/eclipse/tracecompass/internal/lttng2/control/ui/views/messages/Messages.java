@@ -85,6 +85,11 @@ public final class Messages extends NLS {
     public static String TraceControl_SaveJob;
     public static String TraceControl_SaveFailure;
 
+    public static String TraceControl_LoadJob;
+    public static String TraceControl_LoadTask;
+    public static String TraceControl_LoadFailure;
+
+
     public static String TraceControl_ChangeSessionStateJob;
     public static String TraceControl_ChangeSessionStateFailure;
 
@@ -318,7 +323,15 @@ public final class Messages extends NLS {
     public static String TraceControl_ExecuteScriptBrowseText;
     public static String TraceControl_ExecuteScriptSelectLabel;
 
+    public static String TraceControl_LoadDialogTitle;
+
     public static String TraceControl_UnknownNode;
+
+    public static String TraceControl_SelectProfileText;
+    public static String TraceControl_LocalButtonText;
+    public static String TraceControl_RemoteButtonText;
+
+    public static String TraceControl_ForceButtonText;
 
     static {
         // initialize resource bundle

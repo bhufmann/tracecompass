@@ -417,4 +417,19 @@ public interface ILttngControlService {
      */
     void saveSession(@Nullable String session, @Nullable String outputPath, boolean isForce, IProgressMonitor monitor)
             throws ExecutionException;
+
+    /**
+     * Load all or a given session.
+     *
+     * @param inputPath
+     *            a input path to load session from or null for load all from default
+     * @param isForce
+     *            flag whether to overwrite existing or not
+     * @param monitor
+     *            a progress monitor
+     * @throws ExecutionException
+     *             If the command fails
+     */
+    void loadSession(@Nullable String inputPath, boolean isForce, IProgressMonitor monitor)
+            throws ExecutionException;
 }

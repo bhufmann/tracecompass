@@ -212,6 +212,13 @@
             name="%commands.control.save">
       </command>
 
+      <command
+            categoryId="org.eclipse.linuxtools.internal.lttng2.ui.commands.control.category"
+            description="%commands.control.load.description"
+            id="org.eclipse.linuxtools.internal.lttng2.ui.commands.control.load"
+            name="%commands.control.load">
+      </command>
+
    </extension>
    <extension
          point="org.eclipse.ui.menus">
@@ -371,6 +378,24 @@
                commandId="org.eclipse.linuxtools.internal.lttng2.ui.commands.control.createSession"
                icon="icons/elcl16/add_button.gif"
                label="%commands.control.create.session"
+               style="push">
+            <visibleWhen
+                  checkEnabled="false">
+               <with
+                     variable="activeMenuSelection">
+                  <iterate
+                        operator="or">
+                     <instanceof
+                           value="org.eclipse.tracecompass.internal.lttng2.control.ui.views.model.impl.TraceSessionGroup">
+                     </instanceof>
+                  </iterate>
+               </with>
+            </visibleWhen>
+         </command>
+         <command
+               commandId="org.eclipse.linuxtools.internal.lttng2.ui.commands.control.load"
+               icon="icons/elcl16/import_button.gif"
+               label="%commands.control.load"
                style="push">
             <visibleWhen
                   checkEnabled="false">
@@ -936,6 +961,21 @@
       <handler
             class="org.eclipse.tracecompass.internal.lttng2.control.ui.views.handlers.CreateSessionHandler"
             commandId="org.eclipse.linuxtools.internal.lttng2.ui.commands.control.createSession">
+         <activeWhen>
+            <with
+                  variable="selection">
+               <iterate
+                     operator="or">
+                  <instanceof
+                        value="org.eclipse.tracecompass.internal.lttng2.control.ui.views.model.impl.TraceSessionGroup">
+                  </instanceof>
+               </iterate>
+            </with>
+         </activeWhen>
+      </handler>
+      <handler
+            class="org.eclipse.tracecompass.internal.lttng2.control.ui.views.handlers.LoadHandler"
+            commandId="org.eclipse.linuxtools.internal.lttng2.ui.commands.control.load">
          <activeWhen>
             <with
                   variable="selection">

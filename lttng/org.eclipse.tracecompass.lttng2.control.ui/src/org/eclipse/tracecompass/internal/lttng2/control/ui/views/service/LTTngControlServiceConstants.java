@@ -50,6 +50,9 @@ public interface LTTngControlServiceConstants {
      */
     String TRUE_NUMERICAL = "1"; //$NON-NLS-1$
 
+    /** The default directory for session */
+    public static final String DEFAULT_PATH = ".lttng/sessions"; //$NON-NLS-1$
+
     // ------------------------------------------------------------------------
     // LTTng Machine Interface constants
     // ------------------------------------------------------------------------
@@ -138,6 +141,10 @@ public interface LTTngControlServiceConstants {
      * Command to record a snapshot
      */
     String COMMAND_SAVE_SESSION = "save"; //$NON-NLS-1$
+    /**
+     * Command to record a snapshot
+     */
+    String COMMAND_LOAD_SESSION = "load"; //$NON-NLS-1$
 
     // ------------------------------------------------------------------------
     // Command line options constants
@@ -286,6 +293,10 @@ public interface LTTngControlServiceConstants {
      * Command line option for force overwrite
      */
     String OPTION_FORCE = "-f"; //$NON-NLS-1$
+    /**
+     * Command line option for specifying input path
+     */
+    String OPTION_INPUT_PATH = "-i"; //$NON-NLS-1$
 
     /**
      * Maximum live timer interval value
