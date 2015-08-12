@@ -43,4 +43,8 @@ public class LttngProfileManager {
     public static File[] getProfiles() {
         return SAVED_PROFILE_PATH.toFile().listFiles();
     }
+
+    public static IPath getProfileDirectory () {
+        return SAVED_PROFILE_PATH;
+    }
 }
