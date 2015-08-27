@@ -57,6 +57,10 @@ public final class TraceControlDialogFactory {
      * The command script selection dialog.
      */
     private ILoadDialog fLoadDialog;
+    /**
+     * The save dialog.
+     */
+    private ISaveDialog fSaveDialog;
 
     /**
      * The enable events dialog.
@@ -175,6 +179,25 @@ public final class TraceControlDialogFactory {
      */
     public void setLoadDialog(ILoadDialog loadDialog) {
         fLoadDialog = loadDialog;
+    }
+
+    /**
+     * @return save dialog implementation
+     */
+    public ISaveDialog getSaveDialog() {
+        if (fSaveDialog == null) {
+            fSaveDialog = new SaveDialog(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell());
+        }
+        return fSaveDialog;
+    }
+
+    /**
+     * Sets a save dialog implementation
+     * @param saveDialog
+     *            a save dialog implementation
+     */
+    public void setSaveDialog(ISaveDialog saveDialog) {
+        fSaveDialog = saveDialog;
     }
 
     /**
