@@ -20,11 +20,17 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
-import org.eclipse.tracecompass.analysis.os.linux.core.kernelanalysis.KernelTidAspect;
+import org.eclipse.tracecompass.analysis.os.linux.core.kernel.KernelTidAspect;
 import org.eclipse.tracecompass.analysis.os.linux.core.trace.IKernelAnalysisEventLayout;
 import org.eclipse.tracecompass.analysis.os.linux.core.trace.IKernelTrace;
-import org.eclipse.tracecompass.analysis.timing.core.segmentstore.AbstractSegmentStoreAnalysisModule;
+import org.eclipse.tracecompass.analysis.timing.core.segmentstore.AbstractSegmentStoreAnalysisEventBasedModule;
+import org.eclipse.tracecompass.analysis.timing.core.segmentstore.statistics.EventChainSegments;
+import org.eclipse.tracecompass.internal.analysis.os.linux.core.latency.Messages;
 import org.eclipse.tracecompass.segmentstore.core.BasicSegment;
 import org.eclipse.tracecompass.segmentstore.core.ISegment;
 import org.eclipse.tracecompass.segmentstore.core.ISegmentStore;
@@ -40,7 +46,8 @@ import com.google.common.collect.ImmutableMap;
  * @author Bernd Hufmann
  * @since 2.0
  */
-public class EventChainLatencyAnalysis extends AbstractSegmentStoreAnalysisModule {
+@NonNullByDefault
+public class EventChainLatencyAnalysis extends AbstractSegmentStoreAnalysisEventBasedModule {
 
     /**
      * The ID of this analysis
@@ -104,12 +111,12 @@ public class EventChainLatencyAnalysis extends AbstractSegmentStoreAnalysisModul
     }
 
     @Override
-    public String getDataFileName() {
+    protected @Nullable String getDataFileName() {
         return DATA_FILENAME;
     }
 
     @Override
-    public AbstractSegmentStoreAnalysisRequest createAnalysisRequest(ISegmentStore<ISegment> segmentStore) {
+    protected AbstractSegmentStoreAnalysisRequest createAnalysisRequest(ISegmentStore<@NonNull ISegment> segmentStore) {
         return new EventChainLatencyAnalysisRequest(segmentStore);
     }
 
@@ -118,7 +125,7 @@ public class EventChainLatencyAnalysis extends AbstractSegmentStoreAnalysisModul
         return checkNotNull((Object[]) ois.readObject());
     }
 
-    private static class EventChainLatencyAnalysisRequest extends AbstractSegmentStoreAnalysisRequest {
+    private class EventChainLatencyAnalysisRequest extends AbstractSegmentStoreAnalysisRequest {
 
         private @Nullable Map<String, Integer> fEventNames;
 
@@ -131,6 +138,8 @@ public class EventChainLatencyAnalysis extends AbstractSegmentStoreAnalysisModul
         private @Nullable HrTimer fCurrentHrTimer = null;
 
         private @Nullable IKernelAnalysisEventLayout fLayout;
+
+        private IProgressMonitor fMonitor = new NullProgressMonitor();
 
         public EventChainLatencyAnalysisRequest(ISegmentStore<ISegment> syscalls) {
             super(syscalls);
@@ -154,7 +163,12 @@ public class EventChainLatencyAnalysis extends AbstractSegmentStoreAnalysisModul
             int intval = (idx == null ? -1 : idx.intValue());
             switch (intval) {
             case HR_TIMER_START: {
-                Integer tid = KernelTidAspect.INSTANCE.resolve(event);
+                Integer tid;
+                try {
+                    tid = KernelTidAspect.INSTANCE.resolve(event, true, fMonitor);
+                } catch (InterruptedException e) {
+                    return;
+                }
                 if (tid == null) {
                     // no information on this event/trace ?
                     return;
@@ -164,6 +178,9 @@ public class EventChainLatencyAnalysis extends AbstractSegmentStoreAnalysisModul
                 }
                 ITmfEventField content = event.getContent();
                 Long hrTimer = (Long) content.getField(HRTIMER_FIELD_NAME).getValue();
+                if (hrTimer == null) {
+                    break;
+                }
                 Long function = (Long) content.getField(FUNCTION_FIELD_NAME).getValue();
                 // hrtimer wakeup
                 if (function == HRTIMER_WAKEUP_ADDRESS) {
@@ -252,7 +269,12 @@ public class EventChainLatencyAnalysis extends AbstractSegmentStoreAnalysisModul
             }
 
             case SYSCALL_EXIT_CLOCK_INDEX: {
-                Integer tid = KernelTidAspect.INSTANCE.resolve(event);
+                Integer tid;
+                try {
+                    tid = KernelTidAspect.INSTANCE.resolve(event, true, fMonitor);
+                } catch (InterruptedException e) {
+                    return;
+                }
                 if (tid == null) {
                     // no information on this event/trace ?
                     return;
@@ -273,7 +295,6 @@ public class EventChainLatencyAnalysis extends AbstractSegmentStoreAnalysisModul
 
                     getSegmentStore().add(seg);
                 }
-
                 break;
             }
             default:
@@ -288,7 +309,7 @@ public class EventChainLatencyAnalysis extends AbstractSegmentStoreAnalysisModul
             fCurrentHrTimer = null;
         }
 
-        private static Map<String, Integer> buildEventNames(IKernelAnalysisEventLayout layout) {
+        private  Map<String, Integer> buildEventNames(IKernelAnalysisEventLayout layout) {
             ImmutableMap.Builder<String, Integer> builder = ImmutableMap.builder();
 
             builder.put(HR_TIMER_START_EVENT_NAME, HR_TIMER_START);

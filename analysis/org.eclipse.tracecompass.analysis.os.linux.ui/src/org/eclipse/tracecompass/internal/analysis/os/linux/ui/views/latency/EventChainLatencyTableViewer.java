@@ -15,8 +15,8 @@ package org.eclipse.tracecompass.internal.analysis.os.linux.ui.views.latency;
 import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.tracecompass.analysis.os.linux.core.latency.EventChainLatencyAnalysis;
-import org.eclipse.tracecompass.analysis.timing.core.segmentstore.AbstractSegmentStoreAnalysisModule;
-import org.eclipse.tracecompass.analysis.timing.ui.views.segmentstore.AbstractSegmentStoreTableViewer;
+import org.eclipse.tracecompass.analysis.timing.core.segmentstore.ISegmentStoreProvider;
+import org.eclipse.tracecompass.analysis.timing.ui.views.segmentstore.table.AbstractSegmentStoreTableViewer;
 import org.eclipse.tracecompass.tmf.core.trace.ITmfTrace;
 import org.eclipse.tracecompass.tmf.core.trace.TmfTraceUtils;
 
@@ -45,7 +45,7 @@ public class EventChainLatencyTableViewer extends AbstractSegmentStoreTableViewe
     // Operations
     // ------------------------------------------------------------------------
     @Override
-    protected @Nullable AbstractSegmentStoreAnalysisModule getSegmentStoreAnalysisModule(ITmfTrace trace) {
+    protected @Nullable ISegmentStoreProvider getSegmentStoreProvider(ITmfTrace trace) {
           return TmfTraceUtils.getAnalysisModuleOfClass(trace, EventChainLatencyAnalysis.class, EventChainLatencyAnalysis.ID);
     }
 }

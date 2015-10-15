@@ -7,11 +7,9 @@
  * http://www.eclipse.org/legal/epl-v10.html
  *******************************************************************************/
 
-package org.eclipse.tracecompass.analysis.os.linux.core.latency;
+package org.eclipse.tracecompass.segmentstore.core;
 
 import java.util.List;
-
-import org.eclipse.tracecompass.segmentstore.core.ISegment;
 
 /**
  *

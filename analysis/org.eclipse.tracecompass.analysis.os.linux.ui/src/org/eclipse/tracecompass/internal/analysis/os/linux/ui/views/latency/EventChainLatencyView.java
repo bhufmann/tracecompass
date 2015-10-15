@@ -12,9 +12,10 @@
 
 package org.eclipse.tracecompass.internal.analysis.os.linux.ui.views.latency;
 
+import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jface.viewers.TableViewer;
-import org.eclipse.tracecompass.analysis.timing.ui.views.segmentstore.AbstractSegmentStoreTableView;
-import org.eclipse.tracecompass.analysis.timing.ui.views.segmentstore.AbstractSegmentStoreTableViewer;
+import org.eclipse.tracecompass.analysis.timing.ui.views.segmentstore.table.AbstractSegmentStoreTableView;
+import org.eclipse.tracecompass.analysis.timing.ui.views.segmentstore.table.AbstractSegmentStoreTableViewer;
 
 /**
  * View for latency analysis a event chains
@@ -35,7 +36,7 @@ public class EventChainLatencyView extends AbstractSegmentStoreTableView {
     // ------------------------------------------------------------------------
 
     @Override
-    protected AbstractSegmentStoreTableViewer getSegmentStoreViewer(TableViewer tableViewer) {
+    protected @NonNull AbstractSegmentStoreTableViewer createSegmentStoreViewer(@NonNull TableViewer tableViewer) {
         return new EventChainLatencyTableViewer(tableViewer);
     }
 
