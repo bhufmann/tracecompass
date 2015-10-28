@@ -12,6 +12,7 @@
 
 package org.eclipse.tracecompass.internal.analysis.os.linux.ui.views.latency.statistics;
 
+import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.tracecompass.analysis.timing.ui.views.segmentstore.statistics.AbstractSegmentStoreStatisticsView;
 import org.eclipse.tracecompass.analysis.timing.ui.views.segmentstore.statistics.AbstractSegmentStoreStatisticsViewer;
@@ -29,5 +30,9 @@ public class EventChainLatencyStatisticsView extends AbstractSegmentStoreStatist
     @Override
     protected AbstractSegmentStoreStatisticsViewer createSegmentStoreStatisticsViewer(Composite parent) {
         return new EventChainLatencyStatisticsViewer(parent);
+    }
+    @Override
+    public void createPartControl(@Nullable Composite parent) {
+        super.createPartControl(parent);
     }
 }
