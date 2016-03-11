@@ -18,6 +18,7 @@ import java.util.List;
 import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.tracecompass.common.core.NonNullUtils;
 import org.eclipse.tracecompass.segmentstore.core.BasicSegment;
+import org.eclipse.tracecompass.segmentstore.core.ISegementChain;
 import org.eclipse.tracecompass.segmentstore.core.ISegment;
 
 import com.google.common.collect.ImmutableList;
@@ -118,10 +119,11 @@ public class SegmentStoreStatistics {
      * @return the children segment statistics
      */
     public List<SegmentStoreStatistics> getChildren() {
-        if (fChildren == null) {
+        List<SegmentStoreStatistics> children = fChildren;
+        if (children == null) {
             return Collections.EMPTY_LIST;
         }
-        return ImmutableList.copyOf(NonNullUtils.checkNotNull(fChildren));
+        return ImmutableList.copyOf(NonNullUtils.checkNotNull(children));
     }
 
     /**
@@ -150,9 +152,9 @@ public class SegmentStoreStatistics {
         fAverage += delta / fNbSegments;
         fVariance += delta * (value - fAverage);
 
-        if (segment instanceof EventChainSegments) {
+        if (segment instanceof ISegementChain) {
             List<SegmentStoreStatistics> children = fChildren;
-            List<ISegment> subsegments = ((EventChainSegments) segment).getSubSegments();
+            List<ISegment> subsegments = ((ISegementChain) segment).getSubSegments();
             if (children == null) {
                 children = new ArrayList<>();
                 for (int i = 0; i < subsegments.size(); i++) {

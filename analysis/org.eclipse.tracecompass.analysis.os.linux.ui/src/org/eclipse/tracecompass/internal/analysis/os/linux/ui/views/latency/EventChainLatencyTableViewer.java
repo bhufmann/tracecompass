@@ -25,7 +25,7 @@ import org.eclipse.tracecompass.tmf.core.trace.TmfTraceUtils;
  *
  * @author Bernd Hufmann
  */
-public class EventChainLatencyTableViewer extends AbstractSegmentStoreTableViewer {
+public class EventChainLatencyTableViewer extends AbstractSegmentStoreTableViewer{
 
     // ------------------------------------------------------------------------
     // Constructor
