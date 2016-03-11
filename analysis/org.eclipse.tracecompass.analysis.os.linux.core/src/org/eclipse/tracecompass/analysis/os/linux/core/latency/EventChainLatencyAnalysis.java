@@ -69,7 +69,8 @@ public class EventChainLatencyAnalysis extends AbstractSegmentStoreAnalysisEvent
     private static final String COMM_FIELD_NAME = "comm"; //$NON-NLS-1$
 
     // TODO Replace hardcoded values
-    private static int TID_VALUE = 18395;
+//    private static int TID_VALUE = 18395; // trace: cyclic-test-20151007-111133
+    private static int TID_VALUE = 27950; // trace: cyclic-test-20151105-161753
     /* TODO Hard-code value, only works for specific trace,
        it would be good to determine this value or
        LTTng will provide the function name (hrtimer_wakeup)instead of the address
