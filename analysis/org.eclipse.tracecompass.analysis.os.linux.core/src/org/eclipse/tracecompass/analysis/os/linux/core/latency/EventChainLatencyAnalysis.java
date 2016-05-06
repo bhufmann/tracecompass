@@ -15,6 +15,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.text.NumberFormat;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Locale;
@@ -26,6 +27,7 @@ import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.tracecompass.analysis.os.linux.core.kernel.KernelTidAspect;
+import org.eclipse.tracecompass.analysis.os.linux.core.tid.TidAnalysisModule;
 import org.eclipse.tracecompass.analysis.os.linux.core.trace.IKernelAnalysisEventLayout;
 import org.eclipse.tracecompass.analysis.os.linux.core.trace.IKernelTrace;
 import org.eclipse.tracecompass.analysis.timing.core.segmentstore.AbstractSegmentStoreAnalysisEventBasedModule;
@@ -34,13 +36,16 @@ import org.eclipse.tracecompass.internal.analysis.os.linux.core.latency.Messages
 import org.eclipse.tracecompass.segmentstore.core.BasicSegment;
 import org.eclipse.tracecompass.segmentstore.core.ISegment;
 import org.eclipse.tracecompass.segmentstore.core.ISegmentStore;
+import org.eclipse.tracecompass.tmf.core.analysis.IAnalysisModule;
 import org.eclipse.tracecompass.tmf.core.event.ITmfEvent;
 import org.eclipse.tracecompass.tmf.core.event.ITmfEventField;
 import org.eclipse.tracecompass.tmf.core.segment.ISegmentAspect;
+import org.eclipse.tracecompass.tmf.core.trace.ITmfTrace;
 import org.eclipse.tracecompass.tmf.ctf.core.event.aspect.CtfCpuAspect;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 
 /**
  * @author Bernd Hufmann
@@ -89,6 +94,18 @@ public class EventChainLatencyAnalysis extends AbstractSegmentStoreAnalysisEvent
     private static final int SCHED_SWITCH_INDEX = 4;
     private static final int SYSCALL_EXIT_CLOCK_INDEX = 5;
 
+    @Override
+    protected Iterable<IAnalysisModule> getDependentAnalyses() {
+        ITmfTrace trace = getTrace();
+        if (trace == null) {
+            throw new IllegalStateException();
+        }
+        IAnalysisModule module = trace.getAnalysisModule(TidAnalysisModule.ID);
+        if (module == null) {
+            return Collections.EMPTY_SET;
+        }
+        return ImmutableSet.of(module);
+    }
     private static final String[] DURATION_NAMES = new String[] {
             Messages.LatencyChain_TimerElapsedLabel,
             Messages.LatencyChain_TimeToSchedWakeUpLabel,
