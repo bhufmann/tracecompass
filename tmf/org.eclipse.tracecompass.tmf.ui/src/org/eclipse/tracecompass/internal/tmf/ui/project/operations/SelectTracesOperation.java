@@ -28,6 +28,11 @@ import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.operation.ModalContext;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.tracecompass.internal.tmf.ui.Activator;
+import org.eclipse.tracecompass.tmf.core.event.ITmfEvent;
+import org.eclipse.tracecompass.tmf.core.exceptions.TmfTraceException;
+import org.eclipse.tracecompass.tmf.core.trace.ITmfContext;
+import org.eclipse.tracecompass.tmf.core.trace.ITmfTrace;
+import org.eclipse.tracecompass.tmf.core.trace.TmfTraceManager;
 import org.eclipse.tracecompass.tmf.ui.project.model.TmfExperimentElement;
 import org.eclipse.tracecompass.tmf.ui.project.model.TmfExperimentFolder;
 import org.eclipse.tracecompass.tmf.ui.project.model.TmfTraceElement;
@@ -116,11 +121,15 @@ public class SelectTracesOperation implements IRunnableWithProgress {
             }
         }
 
-        Set<String> keys = previousTraces.keySet();
-        SubMonitor subMonitor = SubMonitor.convert(progressMonitor, elements.size() + keys.size());
         // Add the selected traces to the experiment
         try {
-            for (TmfTraceElement trace : elements) {
+            // FIXME startTime and endTime need to be supplied by dialog
+            long startTime = 1461710138250414000L;
+            long endTime = 1461763217579870000L;
+            List<TmfTraceElement> intersectingElements = getIntersectingTraces(elements, progressMonitor, startTime, endTime);
+            Set<String> keys = previousTraces.keySet();
+            SubMonitor subMonitor = SubMonitor.convert(progressMonitor, intersectingElements.size() + keys.size());
+            for (TmfTraceElement trace : intersectingElements) {
                 ModalContext.checkCanceled(progressMonitor);
                 String name = trace.getElementPath();
                 if (keys.contains(name)) {
@@ -164,6 +173,39 @@ public class SelectTracesOperation implements IRunnableWithProgress {
             Activator.getDefault().logError(Messages.SelectTracesWizardPage_SelectionError, e);
             setStatus(new Status(IStatus.ERROR, Activator.PLUGIN_ID, Messages.SelectTracesWizardPage_SelectionError, e));
         }
+    }
+
+    private static List<TmfTraceElement> getIntersectingTraces(List<TmfTraceElement> elements, IProgressMonitor progressMonitor, long startTime, long endTime) throws InterruptedException {
+        List<TmfTraceElement> intersectingElements = new ArrayList<>();
+        SubMonitor subMonitor = SubMonitor.convert(progressMonitor, elements.size());
+        for (TmfTraceElement tmfTraceElement : elements) {
+            ModalContext.checkCanceled(progressMonitor);
+            ITmfTrace trace = tmfTraceElement.instantiateTrace();
+            ITmfEvent event = tmfTraceElement.instantiateEvent();
+            try {
+                trace.initTrace(tmfTraceElement.getResource(), tmfTraceElement.getResource().getLocation().toOSString(), event.getClass());
+                subMonitor.setTaskName("Indexing trace " + trace.getName()); //$NON-NLS-1$
+                TmfTraceManager.refreshSupplementaryFiles(trace);
+                // read first event for early checks
+                final ITmfContext context = trace.seekEvent(0);
+                trace.getNext(context);
+                context.dispose();
+                if (trace.getStartTime().toNanos() <= endTime) {
+                    // index trace to get endTime
+                    trace.indexTrace(true);
+                    if (trace.getEndTime().toNanos() >= startTime) {
+                        intersectingElements.add(tmfTraceElement);
+                    }
+                }
+                subMonitor.worked(1);
+            } catch (TmfTraceException e) {
+                //                TraceUtils.displayErrorMsg(Messages.SynchronizeTracesHandler_Title, Messages.SynchronizeTracesHandler_InitError + "\n\n" + e);
+                continue;
+            } finally {
+                trace.dispose();
+            }
+        }
+        return intersectingElements;
     }
 
     /**
